@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +40,9 @@ public class MainActivity extends Activity implements OnItemClickListener{
     
     private static final int CAPTURE_IMAGE_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_REQUEST_CODE = 200;
-	
+    
+    public static final int NOT_UPLOAD = 1;
+    
     private static final String TAG = "MainActivity";
     
     private ListAdapter adapter;
@@ -172,6 +179,36 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	private void upload(Uri media){
 		UploadTask uploader = new UploadTask(this);
 		uploader.execute(media);
+		showNotification();
+	}
+	
+	private void showNotification(){
+		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		int icon = R.drawable.ic_launcher;
+		CharSequence tickerText = "Uploading photo...";
+		long when = System.currentTimeMillis();
+
+		Notification notification = new Notification(icon, tickerText, when);
+		
+		Intent notificationIntent = new Intent(this, MainActivity.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		
+		//notification.defaults = Notification.DEFAULT_SOUND;
+		notification.flags = Notification.FLAG_ONGOING_EVENT;
+		
+		/*String contentTitle = "CamTest";
+		String contentText = "Uploading your photo, please wait...";
+		notification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
+		*/
+		
+		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
+		contentView.setImageViewResource(R.id.notification_icon, R.drawable.ic_launcher);
+		contentView.setTextViewText(R.id.notification_text, "Uploading photo...");
+		notification.contentView = contentView;
+		notification.contentIntent = contentIntent;
+		
+		notificationManager.notify(NOT_UPLOAD, notification);
 	}
 	
 	private Bitmap getPreview(Uri uri){
@@ -221,17 +258,22 @@ public class MainActivity extends Activity implements OnItemClickListener{
         }
         
         if(mediaFile != null){
-        	// Tell the media scanner about the new file so that it is immediately available to the user.
-            MediaScannerConnection.scanFile(this, new String[] {mediaFile.toString()}, null, new MediaScannerConnection.OnScanCompletedListener(){
-                public void onScanCompleted(String path, Uri uri){
-                    Log.d(TAG, "Scanned " + path + ":");
-                    Log.d(TAG, "-> uri=" + uri);
-                }
-            });
-            
-        	Log.d(TAG, mediaFile.getAbsolutePath());
+        	addToMediaScanner(mediaFile);
         }
+        
         return mediaFile;
+    }
+    
+    private void addToMediaScanner(File mediaFile){
+    	// Tell the media scanner about the new file so that it is immediately available to the user.
+        MediaScannerConnection.scanFile(this, new String[] {mediaFile.toString()}, null, new MediaScannerConnection.OnScanCompletedListener(){
+            public void onScanCompleted(String path, Uri uri){
+                Log.d(TAG, "Scanned " + path + ":");
+                Log.d(TAG, "-> uri=" + uri);
+            }
+        });
+        
+    	Log.d(TAG, mediaFile.getAbsolutePath());
     }
     
     public void onUploadCompleted(String link){
