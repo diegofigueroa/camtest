@@ -34,6 +34,8 @@ public class UploadTask extends AsyncTask<Uri, Void, String>{
 		}
 	}
 	
+	
+	
 	private void updateNotification(){
 		NotificationManager notificationManager = (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
 		

@@ -125,10 +125,16 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		}
 	}
 	
+	
+	
+	
+	// Receives camera result
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
     	if(requestCode == CAPTURE_IMAGE_REQUEST_CODE){
 	        if(resultCode == Activity.RESULT_OK){
+	        	/*	PASO 2.3: <-------------     CORTE AQUI
+	        	
 	        	if(mediaUri != null){
 	        		Toast.makeText(this, "Picture taken.", Toast.LENGTH_LONG).show();
 	        		upload(mediaUri);
@@ -136,6 +142,8 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	        		ImageView imageView = (ImageView)findViewById(R.id.preview);
 	        		imageView.setImageBitmap(getPreview(mediaUri));
 	        	}
+	        	
+	        	PASO 2.3: ------------->     CORTE AQUI */
 	        }else if(resultCode == Activity.RESULT_CANCELED){
 	           // User cancelled the image capture
 	        }else{
@@ -144,10 +152,13 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	    }
 	}
     
+	// Sends camera intent
 	private Uri startCamera(boolean forPhoto){
     	Uri uri = null;
     	if(forPhoto){
     		
+    		/*	PASO 2.1: <-------------     CORTE AQUI
+    		 
     		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
     		
     		uri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
@@ -159,7 +170,11 @@ public class MainActivity extends Activity implements OnItemClickListener{
     		
     		startActivityForResult(intent, CAPTURE_IMAGE_REQUEST_CODE);
     		
+    		PASO 2.1: ------------->     CORTE AQUI */
+    		
     	}else{
+    		
+    		/*	PASO 2.2: <-------------     CORTE AQUI
     		
     		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
     		
@@ -171,21 +186,31 @@ public class MainActivity extends Activity implements OnItemClickListener{
     		}
     		
     		startActivityForResult(intent, CAPTURE_VIDEO_REQUEST_CODE);
+    		
+    		PASO 2.2: ------------->     CORTE AQUI */
     	}
     	
     	return uri;
     }
 	
+	// Upload media in background
 	private void upload(Uri media){
+		/* PASO 2.4: <-------------     CORTE AQUI 
+		
 		UploadTask uploader = new UploadTask(this);
 		uploader.execute(media);
 		showNotification();
+		
+		PASO 2.4: ------------->     CORTE AQUI */
 	}
 	
+	//Notifies user
 	private void showNotification(){
+		/*	PASO 4.1: ------------->     CORTE AQUI 
+		
 		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		
-		int icon = R.drawable.ic_launcher;
+		int icon = R.drawable.upload;
 		CharSequence tickerText = "Uploading photo...";
 		long when = System.currentTimeMillis();
 
@@ -197,10 +222,21 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		//notification.defaults = Notification.DEFAULT_SOUND;
 		notification.flags = Notification.FLAG_ONGOING_EVENT;
 		
-		/*String contentTitle = "CamTest";
+		// PASO 4.2.1
+		
+		String contentTitle = "CamTest";
 		String contentText = "Uploading your photo, please wait...";
 		notification.setLatestEventInfo(this, contentTitle, contentText, contentIntent);
-		*/
+		notificationManager.notify(NOT_UPLOAD, notification);
+		
+		// PASO 4.2.1
+		
+		
+		PASO 4.1: ------------->     CORTE AQUI	*/
+		
+		
+		
+		/*	PASO 4.2.2: ------------->     CORTE AQUI
 		
 		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
 		contentView.setImageViewResource(R.id.notification_icon, R.drawable.ic_launcher);
@@ -209,8 +245,15 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		notification.contentIntent = contentIntent;
 		
 		notificationManager.notify(NOT_UPLOAD, notification);
+		
+		PASO 4.2.2: ------------->     CORTE AQUI */
 	}
 	
+	
+	
+	
+	
+	// Build photo preview
 	private Bitmap getPreview(Uri uri){
 	    BitmapFactory.Options bounds = new BitmapFactory.Options();
 	    bounds.inJustDecodeBounds = true;
@@ -224,6 +267,9 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	    opts.inSampleSize = originalSize / 200;
 	    return BitmapFactory.decodeFile(uri.getPath(), opts);     
 	}
+	
+	
+	//Where to save media files
 	
 	private Uri getOutputMediaFileUri(int type){
     	Uri result = null;
@@ -264,6 +310,8 @@ public class MainActivity extends Activity implements OnItemClickListener{
         return mediaFile;
     }
     
+    
+    //Notify Media Scanner about my new files
     private void addToMediaScanner(File mediaFile){
     	// Tell the media scanner about the new file so that it is immediately available to the user.
         MediaScannerConnection.scanFile(this, new String[] {mediaFile.toString()}, null, new MediaScannerConnection.OnScanCompletedListener(){
@@ -276,10 +324,14 @@ public class MainActivity extends Activity implements OnItemClickListener{
     	Log.d(TAG, mediaFile.getAbsolutePath());
     }
     
+    
+    // Add to log list
     public void onUploadCompleted(String link){
     	adapter.append(link);
     }
     
+    
+    // Open web browser to check uploaded photo
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id){
 		String url = ((TextView)view).getText().toString();
