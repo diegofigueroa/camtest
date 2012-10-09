@@ -134,7 +134,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
     	if(requestCode == CAPTURE_IMAGE_REQUEST_CODE){
 	        if(resultCode == Activity.RESULT_OK){
 	        	/*	PASO 2.3: <-------------     CORTE AQUI
-	        	
+	        	ykro */
 	        	if(mediaUri != null){
 	        		Toast.makeText(this, "Picture taken.", Toast.LENGTH_LONG).show();
 	        		upload(mediaUri);
@@ -142,7 +142,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	        		ImageView imageView = (ImageView)findViewById(R.id.preview);
 	        		imageView.setImageBitmap(getPreview(mediaUri));
 	        	}
-	        	
+	        	/* ykro
 	        	PASO 2.3: ------------->     CORTE AQUI */
 	        }else if(resultCode == Activity.RESULT_CANCELED){
 	           // User cancelled the image capture
@@ -158,7 +158,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
     	if(forPhoto){
     		
     		/*	PASO 2.1: <-------------     CORTE AQUI
-    		 
+    		 ykro */ 
     		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
     		
     		uri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
@@ -169,13 +169,13 @@ public class MainActivity extends Activity implements OnItemClickListener{
     		}
     		
     		startActivityForResult(intent, CAPTURE_IMAGE_REQUEST_CODE);
-    		
+    		/* ykro
     		PASO 2.1: ------------->     CORTE AQUI */
     		
     	}else{
     		
     		/*	PASO 2.2: <-------------     CORTE AQUI
-    		
+    		ykro */
     		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
     		
     		uri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
@@ -186,7 +186,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
     		}
     		
     		startActivityForResult(intent, CAPTURE_VIDEO_REQUEST_CODE);
-    		
+    		/* ykro
     		PASO 2.2: ------------->     CORTE AQUI */
     	}
     	
@@ -196,18 +196,18 @@ public class MainActivity extends Activity implements OnItemClickListener{
 	// Upload media in background
 	private void upload(Uri media){
 		/* PASO 2.4: <-------------     CORTE AQUI 
-		
+		ykro */
 		UploadTask uploader = new UploadTask(this);
 		uploader.execute(media);
 		showNotification();
-		
+		/* ykro
 		PASO 2.4: ------------->     CORTE AQUI */
 	}
 	
 	//Notifies user
 	private void showNotification(){
 		/*	PASO 4.1: ------------->     CORTE AQUI 
-		
+		ykro */
 		NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		
 		int icon = R.drawable.upload;
@@ -231,13 +231,13 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		
 		// PASO 4.2.1
 		
-		
+		/* ykro
 		PASO 4.1: ------------->     CORTE AQUI	*/
 		
 		
 		
 		/*	PASO 4.2.2: ------------->     CORTE AQUI
-		
+		ykro */
 		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notification);
 		contentView.setImageViewResource(R.id.notification_icon, R.drawable.ic_launcher);
 		contentView.setTextViewText(R.id.notification_text, "Uploading photo...");
@@ -245,7 +245,7 @@ public class MainActivity extends Activity implements OnItemClickListener{
 		notification.contentIntent = contentIntent;
 		
 		notificationManager.notify(NOT_UPLOAD, notification);
-		
+		/* ykro
 		PASO 4.2.2: ------------->     CORTE AQUI */
 	}
 	
@@ -283,7 +283,11 @@ public class MainActivity extends Activity implements OnItemClickListener{
     private File getOutputMediaFile(int type){
         // To be safe, you should check that the SDCard is mounted using Environment.getExternalStorageState() before doing this.
     	// This location works best if you want the created images to be shared between applications and persist after your app has been uninstalled.
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), getString(R.string.app_name));
+    	
+    	
+    	File rootsd = Environment.getExternalStorageDirectory();
+    	File dcim = new File(rootsd.getAbsolutePath() + "/DCIM");
+        File mediaStorageDir = new File(dcim, getString(R.string.app_name));
         
         if(!mediaStorageDir.exists()){	// Create the storage directory if it does not exist
             if(!mediaStorageDir.mkdirs()){
@@ -314,13 +318,15 @@ public class MainActivity extends Activity implements OnItemClickListener{
     //Notify Media Scanner about my new files
     private void addToMediaScanner(File mediaFile){
     	// Tell the media scanner about the new file so that it is immediately available to the user.
+    	/*
         MediaScannerConnection.scanFile(this, new String[] {mediaFile.toString()}, null, new MediaScannerConnection.OnScanCompletedListener(){
             public void onScanCompleted(String path, Uri uri){
                 Log.d(TAG, "Scanned " + path + ":");
                 Log.d(TAG, "-> uri=" + uri);
             }
         });
-        
+        */
+    	sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory()))); 
     	Log.d(TAG, mediaFile.getAbsolutePath());
     }
     

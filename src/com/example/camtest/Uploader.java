@@ -19,7 +19,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Base64;
+
 import android.util.Log;
 import android.util.Xml;
 
@@ -46,7 +46,8 @@ public class Uploader{
 	    	bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bao);
 	    	
 	    	byte[] ba = bao.toByteArray();
-	    	String encodedData = Base64.encodeToString(ba, Base64.DEFAULT);
+	    	
+	    	String encodedData = Base64.encodeObject(ba);
 	    	
 	    	params.add(new BasicNameValuePair("image", encodedData));
 	    	httpPost.setEntity(new UrlEncodedFormEntity(params));
